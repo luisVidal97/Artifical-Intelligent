@@ -1,0 +1,132 @@
+from sklearn.datasets import load_digits
+import pylab as pl
+
+#Representación de la matriz
+matriz = []
+#Representación de la lista que me va contener los números 2 y 8
+etiquetas = []
+
+digits = load_digits()
+pl.gray() # Queremos las imágenes en grises
+
+numImagenes = len(digits.images) # Numero de imagenes, len es un método que provee el tamaño del arreglo
+print("Se tienen en total:", numImagenes, "imágenes")
+
+y = digits.target # el método nos provee las etiquetas de las imágenes en un arreglo
+
+#define las variables  que van a contener el total de numeros 2 y 8 que hay en las matrices
+count2=0
+count8=0
+for d in range(0,len(y)):
+        if(y[d]==2):
+            count2+=1
+        else:
+            count8+=1
+
+#------------------------------------------------------------------------------------------
+#se introduce las matrices a la variable matriz y, además, rellena la lista etiquetas
+# con la cantidad total de 2 y 8
+#------------------------------------------------------------------------------------------
+for i in range(0,len(y)):
+    matriz.append(digits.images[i])
+    if (2 == y[i]) | (8 == y[i]):
+        etiquetas.append(y[i])
+                
+#------------------------------------------------------------------------------------------
+#Caso que verifica si, dada una matriz, corresponde al numero 2
+#------------------------------------------------------------------------------------------            
+def casoNumero2(mati):
+    count =0
+    flag = False
+    for i in range(0,8):
+        for j in range(2,6):
+            if(mati[i,j]>0 & i!=6):
+                count+=1
+            
+    count2=0
+    for m in range(1,7):
+        if(mati[i,j]>0 ):
+            count2 +=1
+        
+    if(count>=20 &count<23 &count2>4): 
+        flag=True
+    else:
+        flag = False
+    return flag
+            
+
+
+#------------------------------------------------------------------------------------------
+#Método que se encarga de hacer todas las sumas de los pixeles del numero 8 para luego sacar el promedio en el metodo siguiente
+#------------------------------------------------------------------------------------------ 
+def matrizpromedio(meti,list,num):
+            
+    for i in range(8):
+        for j in range(8):
+            meti[i][j]+=list[i,j]
+            
+    return meti
+
+#------------------------------------------------------------------------------------------
+#Método  que se encarga de sacar la matriz promedio para el número 8
+#------------------------------------------------------------------------------------------ 
+def meraLabia(numer):
+    meta = [[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
+              [0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0]]
+    for g in range(0,len(digits.images)):
+         meta= matrizpromedio( meta, digits.images[g],count8)
+        
+    
+    for n in range(0,7):
+        for m in range(0,7):
+            meta[n][m]=(meta[n][m]/count8)
+    
+    return meta
+    
+#------------------------------------------------------------------------------------------
+#Método qpara el número 8 que compara  la matriz promedio del número 8 con cualquier otra matriz
+#------------------------------------------------------------------------------------------     
+def comparar(promedio, otra):
+    flag=False
+    contador=0
+    for h in range(1,7):
+        for j in range(1,7):  
+            #print(otra[h][j]," esta ",promedio[h][j]) 
+            if(otra[h][j]>=promedio[h][j]):
+                contador+=1
+              
+    if(contador>23):
+        flag=True
+    return flag
+
+#------------------------------------------------------------------------------------------
+#Método en el cual se le pasa la matriz para que evalue la cantidad de aciertos para cada número
+#------------------------------------------------------------------------------------------ 
+def respuesta(list,label):
+    totalImagenes = len(list)
+    acertadas2 = 0
+    acertadas8 = 0
+    
+    counta2=0
+    counta8=0
+    for d in range(0,len(label)):
+        if(label[d]==2):
+            counta2+=1
+        else:
+            counta8+=1
+    
+    for i in range (0,len(list)):
+        if(casoNumero2(list[i])):
+            acertadas2+=1
+        if(comparar(meraLabia(counta8), list[i])):
+            acertadas8+=1
+            
+    print("Imagenes totales:")
+    print(len(label))
+    print("Imagenes totales del 2: ",count2)
+    print("acertadas: ",acertadas2)
+    print("correctitud: ",(acertadas2/count2)*100, "%")
+    print("Imagenes totales del 8: ",counta8)
+    print("correctitud: ",(acertadas8/counta8)*100, "%")
+    
+respuesta(matriz,etiquetas)
